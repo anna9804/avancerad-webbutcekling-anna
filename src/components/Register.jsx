@@ -1,41 +1,67 @@
-import React from 'react';
-import { useState } from 'react';
-import "./register.css";
-import { useHistory } from 'react-dom' 
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-function Register() {
+const Register = () => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
-    const [name, setName] = useState("")
-    const [password, setPassword] = useState("")
-    const [email, setEmail] = useState("")
-    const [avatar, setAvatar] = useState("")
-    const history = useHistory
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
 
-    async function signUp (){
-        let item = {name, password, email, avatar}
+    const payload = { username, password };
 
-        let result = await fetch("https://chatify-api.up.railway.app/auth/register ")
-        method: "Post"
-        body: JSON.stringify(item)
+    try {
+      const response = await fetch("https://chatify-api.up.railway.app/auth/register", {
+        method: "POST",
         headers: {
-            "Content-Type"; application/json
-            "Accept"; application/json    
-        }
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
 
-        result = await result.json()
-        localStorage.setItem("user-info", JSON.stringify(result))
+      const result = await response.json();
+
+      if (response.status === 400) {
+        setError("Username or email already exists");
+      } else if (response.ok) {
+        navigate("/login");
+      }
+    } catch (err) {
+      setError("Something went wrong. Please try again.");
     }
+  };
 
-    return (
+  return (
+    <div>
+      <h2>Register</h2>
+      <form onSubmit={handleSubmit}>
         <div>
-            <input type="text" value={name} onChange={(e)=> setName(e.target.value)} className='form-control' placeholder='Namn'/>
-            <input type="password" value={password} onChange={(e)=> setPassword(e.target.value)} className='form-control' placeholder='Lösenord'/>
-            <input type="text" value={email} onChange={(e)=> setEmail(e.target.value)} className='form-control' placeholder='Mail'/>
-            <input type="file" value={avatar} onChange={(e)=> setAvatar(e.target.value)}/>
-            <button onClick={signUp}>Registrera dig!</button>
-
+          <label>Username</label>
+          <input
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
         </div>
-    );
-}
+        <div>
+          <label>Password</label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
+        <button type="submit">Register</button>
+      </form>
+      {error && <p style={{ color: "red" }}>{error}</p>}
+    </div>
+  );
+};
 
 export default Register;
