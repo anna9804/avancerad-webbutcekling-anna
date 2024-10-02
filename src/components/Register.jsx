@@ -14,21 +14,43 @@ const Register = () => {
     const payload = { username, password };
 
     try {
-      const response = await fetch("https://chatify-api.up.railway.app/auth/register", {
+      const registerResponse = await fetch("https://chatify-api.up.railway.app/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Accept: "application/json",
+          "Accept": "application/json",
         },
         body: JSON.stringify(payload),
       });
 
-      const result = await response.json();
+      const registerResult = await registerResponse.json();
 
-      if (response.status === 400) {
-        setError("Username or email already exists");
-      } else if (response.ok) {
-        navigate("/login");
+      if (registerResponse.status === 400) {
+        if (registerResult.message === "Username or email already exists") {
+          setError("Username or email already exists");
+        } else {
+          setError("Registration failed. Please try again.");
+        }
+      } else if (registerResponse.ok) {
+        const tokenPayload = { username, password };
+        const tokenResponse = await fetch("https://chatify-api.up.railway.app/auth/token", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+          },
+          body: JSON.stringify(tokenPayload),
+        });
+
+        const tokenResult = await tokenResponse.json();
+
+        if (tokenResponse.ok) {
+          localStorage.setItem("token", tokenResult.token);
+
+          navigate("/login");
+        } else {
+          setError("Failed to generate token. Please try again.");
+        }
       }
     } catch (err) {
       setError("Something went wrong. Please try again.");

@@ -7,11 +7,12 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="./Register" element={<Register />} />
-        <Route path="./Login" element={<Login />} />
+        <Route path="/" element={<Register />} />
+        <Route path="/" element={<Login />} />
       </Routes>
     </Router>
   );
 }
 
 export default App;
+
