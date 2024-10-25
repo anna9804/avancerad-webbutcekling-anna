@@ -1,96 +1,94 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import "./Login.css";
 
-const Login = () => {
-  const [usernameOrEmail, setUsernameOrEmail] = useState("");
+const Login = ({ setUser }) => {
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
   const [error, setError] = useState("");
-  const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
+    const storedUser = localStorage.getItem("user");
     if (storedUser) {
-      setUser(storedUser);
+      setUser(JSON.parse(storedUser));
+      navigate("/chat");
     }
-  }, []);
+  }, [navigate, setUser]);
 
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
 
-    const payload = { username: usernameOrEmail, password };
+    const csrfToken = localStorage.getItem("csrfToken");
+    const payload = { email, username, password };
 
     try {
-      const response = await fetch("https://chatify-api.up.railway.app/auth/login", {
+      const response = await fetch("https://chatify-api.up.railway.app/auth/token", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Accept: "application/json",
+          "CSRF-Token": csrfToken,
         },
         body: JSON.stringify(payload),
       });
 
-      const result = await response.json();
+      const data = await response.json();
 
-      if (response.status === 400) {
+      if (response.status === 400 || response.status === 401) {
         setError("Invalid credentials");
       } else if (response.ok) {
-        const { token, id, username, avatar } = result;
+        const { token, user, id, avatar } = data;
+        const userData = { id, username: user, avatar, token };
 
-        localStorage.setItem("token", token);
-        localStorage.setItem("user", JSON.stringify({ id, username, avatar }));
-
-        setUser({ id, username, avatar });
+        localStorage.setItem("user", JSON.stringify(userData));
+        setUser(userData);
 
         navigate("/chat");
       }
     } catch (err) {
-      setError("Something went wrong. Please try again.");
+      setError("An error occurred. Please try again.");
     }
   };
 
   return (
-    <div>
-      {!user ? (
-        <>
-          <h2>Login</h2>
-          <form onSubmit={handleSubmit}>
-            <div>
-              <label>Username or Email</label>
-              <input
-                type="text"
-                value={usernameOrEmail}
-                onChange={(e) => setUsernameOrEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div>
-              <label>Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-            <button type="submit">Login</button>
-          </form>
-          {error && <p style={{ color: "red" }}>{error}</p>}
-        </>
-      ) : (
-        <div>
-          <h2>Welcome, {user.username}!</h2>
-          {user.avatar && (
-            <img
-              src={user.avatar}
-              alt="User Avatar"
-              style={{ width: "50px", height: "50px", borderRadius: "50%" }}
-            />
-          )}
-          <button onClick={handleLogout}>Logout</button>
+    <div className="login-container">
+      <h2>Logga in</h2>
+      <form className="login-form" onSubmit={handleLogin}>
+        <div className="form-group">
+          <label>Email</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            placeholder="Enter your email"
+          />
         </div>
-      )}
+        <div className="form-group">
+          <label>Username</label>
+          <input
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+            placeholder="Enter your username"
+          />
+        </div>
+        <div className="form-group">
+          <label>Password</label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            placeholder="Enter your password"
+          />
+        </div>
+        <button type="submit" className="login-btn">Logga in</button>
+      </form>
+      {error && <p className="error-message">{error}</p>}
     </div>
   );
 };
