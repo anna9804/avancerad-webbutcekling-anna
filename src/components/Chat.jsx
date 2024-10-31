@@ -113,12 +113,14 @@ const Chat = () => {
 
   const handleDeleteMessage = async (msgId) => {
     try {
+      const csrfToken = localStorage.getItem("csrfToken");
       const response = await fetch(`https://chatify-api.up.railway.app/messages/${msgId}`, {
         method: "DELETE",
         headers: {
           "Authorization": `Bearer ${loggedInUser.token}`,
         },
       });
+
 
       if (response.ok) {
         setMessages((prevMessages) => prevMessages.filter((msg) => msg.id !== msgId));

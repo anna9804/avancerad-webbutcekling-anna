@@ -20,7 +20,7 @@ function App() {
       <div className="app">
         {user && <SideNav />}
         <Routes>
-        <Route path="/" element={<Register />} />
+        <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login setUser={setUser} />} />
           <Route path="/chat" element={<Chat user={user} />} />
         </Routes>
