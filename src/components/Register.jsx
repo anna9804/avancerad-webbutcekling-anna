@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "./Register.css";
+import "./register.css";
 
 const avatarOptions = [
   'https://api.multiavatar.com/seed1.svg',
