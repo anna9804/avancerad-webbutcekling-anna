@@ -1,10 +1,10 @@
 import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import './SideNav.css'; 
 
-const Sidebar = () => {
+const SideNav = () => {
   const navigate = useNavigate();
-  const location = useLocation();
+  const loggedInUser = JSON.parse(localStorage.getItem('user'));
 
   const handleLogout = () => {
     localStorage.removeItem('user');
@@ -13,10 +13,12 @@ const Sidebar = () => {
 
   return (
     <div className="sidebar">
-      {location.pathname === '/chat' ? (
-        <button className="logout-btn" onClick={handleLogout}>
-          Logout
-        </button>
+      {loggedInUser ? (
+        <>
+          <button className="logout-btn" onClick={handleLogout}>
+            Logout
+          </button>
+        </>
       ) : (
         <>
           <button className="nav-btn" onClick={() => navigate('/login')}>
@@ -31,4 +33,4 @@ const Sidebar = () => {
   );
 };
 
-export default Sidebar;
+export default SideNav;

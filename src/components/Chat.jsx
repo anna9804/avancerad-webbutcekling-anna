@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import DOMPurify from 'dompurify';
 import './Chat.css';
-import SideNav from './SideNav';
-
 
 const Chat = () => {
   const loggedInUser = JSON.parse(localStorage.getItem('user')) || {};
@@ -21,7 +19,7 @@ const Chat = () => {
     },
     {
       id: 3,
-      content: "Sover du eller?! 😴",
+      content: "Sover du eller?!",
       username: loggedInUser.username,
       userId: loggedInUser.id,
     },
@@ -97,6 +95,7 @@ const Chat = () => {
           "Authorization": `Bearer ${loggedInUser.token}`,
         },
         body: JSON.stringify(messagePayload),
+        credentials: 'include',
       });
 
       if (response.ok) {
@@ -113,14 +112,12 @@ const Chat = () => {
 
   const handleDeleteMessage = async (msgId) => {
     try {
-      const csrfToken = localStorage.getItem("csrfToken");
       const response = await fetch(`https://chatify-api.up.railway.app/messages/${msgId}`, {
         method: "DELETE",
         headers: {
           "Authorization": `Bearer ${loggedInUser.token}`,
         },
       });
-
 
       if (response.ok) {
         setMessages((prevMessages) => prevMessages.filter((msg) => msg.id !== msgId));
@@ -134,6 +131,15 @@ const Chat = () => {
 
   return (
     <div className="chat-container">
+      <div className="user-info">
+        <img 
+          src={loggedInUser.avatar || 'https://api.multiavatar.com/seed3.svg'} 
+          alt="User Avatar" 
+          className="user-avatar" 
+        />
+        <h3>{loggedInUser.username}</h3>
+      </div>
+
       <div className="messages-container">
         {messages.map((message) => (
           <div
@@ -152,6 +158,7 @@ const Chat = () => {
           </div>
         ))}
       </div>
+
       <div className="new-message-container">
         <input
           type="text"

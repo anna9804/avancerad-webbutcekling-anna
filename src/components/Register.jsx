@@ -23,7 +23,7 @@ const Register = () => {
     const fetchCsrfToken = async () => {
       try {
         const response = await fetch("https://chatify-api.up.railway.app/csrf", {
-          method: "GET",
+          method: "PATCH",
           credentials: "include",
         });
         const data = await response.json();
