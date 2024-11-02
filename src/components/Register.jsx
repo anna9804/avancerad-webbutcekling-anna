@@ -2,20 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./register.css";
 
-const avatarOptions = [
-  'https://api.multiavatar.com/seed1.svg',
-  'https://api.multiavatar.com/seed2.svg',
-  'https://api.multiavatar.com/seed3.svg',
-  'https://api.multiavatar.com/seed4.svg',
-  'https://api.multiavatar.com/seed5.svg',
-  'https://api.multiavatar.com/seed6.svg',
-];
-
 const Register = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
-  const [avatar, setAvatar] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
@@ -24,7 +14,6 @@ const Register = () => {
       try {
         const response = await fetch("https://chatify-api.up.railway.app/csrf", {
           method: "PATCH",
-          credentials: "include",
         });
         const data = await response.json();
         if (data.csrfToken) {
@@ -43,7 +32,7 @@ const Register = () => {
     setError("");
 
     const csrfToken = localStorage.getItem("csrfToken");
-    const payload = { email, username, password, avatar };
+    const payload = { email, username, password };
 
     try {
       const registerResponse = await fetch("https://chatify-api.up.railway.app/auth/register", {
@@ -100,20 +89,6 @@ const Register = () => {
             required
             placeholder="Create a password"
           />
-        </div>
-        <div className="avatar-container">
-          <h4>Choose your avatar</h4>
-          <div className="avatars">
-            {avatarOptions.map((imgUrl, index) => (
-              <img
-                key={index}
-                src={imgUrl}
-                alt={`Avatar ${index + 1}`}
-                className={`avatar ${avatar === imgUrl ? "selected" : ""}`}
-                onClick={() => setAvatar(imgUrl)}
-              />
-            ))}
-          </div>
         </div>
         <button type="submit" className="register-btn">Register</button>
       </form>

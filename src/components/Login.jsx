@@ -2,6 +2,15 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
 
+const avatarOptions = [
+  'https://api.multiavatar.com/seed1.svg',
+  'https://api.multiavatar.com/seed2.svg',
+  'https://api.multiavatar.com/seed3.svg',
+  'https://api.multiavatar.com/seed4.svg',
+  'https://api.multiavatar.com/seed5.svg',
+  'https://api.multiavatar.com/seed6.svg',
+];
+
 const Login = ({ setUser }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -19,38 +28,40 @@ const Login = ({ setUser }) => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError("");
-
-    const csrfToken = localStorage.getItem("csrfToken");
-    const payload = { email, username, password };
 
     try {
-      const response = await fetch("https://chatify-api.up.railway.app/auth/token", {
+      const response = await fetch("https://chatify-api.up.railway.app/token", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "CSRF-Token": csrfToken,
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ username, password }),
       });
-
-      const data = await response.json();
-
-      if (response.status === 400 || response.status === 401) {
-        setError("Invalid credentials");
-      } else if (response.ok) {
-        const { token, user, id, avatar } = data;
-        const userData = { id, username: user, avatar, token };
-
-        localStorage.setItem("user", JSON.stringify(userData));
-        setUser(userData);
-
-        navigate("/chat");
+  
+      if (response.ok) {
+        const userData = await response.json();
+        
+        // Save necessary user data to localStorage
+        localStorage.setItem('user', JSON.stringify({
+          id: userData.id,
+          username: userData.username,
+          token: userData.token,
+          avatar: userData.avatar || 'https://api.multiavatar.com/seed3.svg',
+        }));
+  
+        console.log("User logged in and data saved to localStorage:", userData);
+        setUser(userData); // Update user context
+        navigate("/chat"); // Navigate to chat after successful login
+      } else {
+        const errorDetails = await response.text();
+        setError(errorDetails || "Login failed."); // Display error message
+        console.error("Login Error:", errorDetails);
       }
     } catch (err) {
-      setError("An error occurred. Please try again.");
+      setError("Error during login. Please try again."); // Handle errors
+      console.error("Error during login:", err);
     }
-  };
+  };   
 
   return (
     <div className="login-container">

@@ -1,19 +1,19 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import './SideNav.css'; 
+import './SideNav.css';
 
-const SideNav = () => {
+const SideNav = ({ user, setUser }) => {
   const navigate = useNavigate();
-  const loggedInUser = JSON.parse(localStorage.getItem('user'));
 
   const handleLogout = () => {
     localStorage.removeItem('user');
+    setUser(null);
     navigate('/login');
   };
 
   return (
     <div className="sidebar">
-      {loggedInUser ? (
+      {user ? (
         <>
           <button className="logout-btn" onClick={handleLogout}>
             Logout

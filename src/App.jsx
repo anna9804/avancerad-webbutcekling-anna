@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./components/Login";
 import SideNav from "./components/SideNav";
-import Register from "./components/Register"
+import Register from "./components/Register";
 import Chat from "./components/Chat";
 
 function App() {
@@ -18,9 +18,9 @@ function App() {
   return (
     <Router>
       <div className="app">
-        {user && <SideNav />}
+        <SideNav user={user} setUser={setUser} />
         <Routes>
-        <Route path="/register" element={<Register />} />
+          <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login setUser={setUser} />} />
           <Route path="/chat" element={<Chat user={user} />} />
         </Routes>
