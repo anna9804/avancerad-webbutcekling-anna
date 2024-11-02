@@ -40,8 +40,6 @@ const Login = ({ setUser }) => {
   
       if (response.ok) {
         const userData = await response.json();
-        
-        // Save necessary user data to localStorage
         localStorage.setItem('user', JSON.stringify({
           id: userData.id,
           username: userData.username,
@@ -50,15 +48,15 @@ const Login = ({ setUser }) => {
         }));
   
         console.log("User logged in and data saved to localStorage:", userData);
-        setUser(userData); // Update user context
-        navigate("/chat"); // Navigate to chat after successful login
+        setUser(userData);
+        navigate("/chat");
       } else {
         const errorDetails = await response.text();
-        setError(errorDetails || "Login failed."); // Display error message
+        setError(errorDetails || "Login failed."); 
         console.error("Login Error:", errorDetails);
       }
     } catch (err) {
-      setError("Error during login. Please try again."); // Handle errors
+      setError("Error during login. Please try again.");
       console.error("Error during login:", err);
     }
   };   

@@ -49,7 +49,7 @@ const Chat = () => {
       username: "Erik",
       userId: 1,
     },
-    // Added fake messages that will persist indefinitely
+    
     {
       id: 8,
       content: "Fake message 1",
@@ -175,7 +175,6 @@ const Chat = () => {
 
   return (
     <div className="chat-container">
-      {/* User Info Section */}
       <div className="user-info">
         <img 
           src={loggedInUser.avatar || 'https://api.multiavatar.com/seed3.svg'} 
@@ -185,7 +184,6 @@ const Chat = () => {
         <h3>{loggedInUser.username || 'Guest'}</h3>
       </div>
 
-      {/* Messages Section */}
       <div className="messages-container">
         {messages.map((message) => (
           <div
@@ -205,7 +203,6 @@ const Chat = () => {
         ))}
       </div>
 
-      {/* New Message Input Section */}
       <div className="new-message-container">
         <input
           type="text"
