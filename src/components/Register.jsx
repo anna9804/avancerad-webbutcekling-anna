@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./register.css";
 
@@ -8,24 +8,6 @@ const Register = () => {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchCsrfToken = async () => {
-      try {
-        const response = await fetch("https://chatify-api.up.railway.app/csrf", {
-          method: "PATCH",
-        });
-        const data = await response.json();
-        if (data.csrfToken) {
-          localStorage.setItem("csrfToken", data.csrfToken);
-        }
-      } catch (error) {
-        console.error("Failed to fetch CSRF token:", error);
-      }
-    };
-
-    fetchCsrfToken();
-  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

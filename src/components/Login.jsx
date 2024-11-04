@@ -109,7 +109,7 @@ const Login = ({ setUser }) => {
             placeholder="Enter your password"
           />
         </div>
-        
+
         <div className="avatar-selection">
           <label>Select Avatar</label>
           <div className="avatar-options">

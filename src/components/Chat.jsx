@@ -7,13 +7,13 @@ const Chat = () => {
   console.log("Logged In User:", loggedInUser);
 
   const [messages, setMessages] = useState([
-    { id: 1, content: "Tja tja, hur mår du?", username: "Erik", userId: 1 },
-    { id: 2, content: "Hallå!! Svara då!!", username: "Anna", userId: 2 },
-    { id: 3, content: "Sover du eller?!", username: "Erik", userId: 1 },
-    { id: 4, content: "Hej, allt bra med dig?", username: "Anna", userId: 2 },
-    { id: 5, content: "Ja, det är bara bra! Hur är det själv?", username: "Anna", userId: 2 },
-    { id: 6, content: "Vad har du för planer för helgen?", username: "Erik", userId: 1 },
-    { id: 7, content: "Jag tänkte kanske gå på bio.", username: "Erik", userId: 1 },
+    { id: 1, text: "Tja tja, hur mår du?", username: "Erik", userId: 1 },
+    // { id: 2, text: "Hallå!! Svara då!!", username: "Anna", userId: 2 },
+    { id: 3, text: "Sover du eller?!", username: "Erik", userId: 1 },
+    // { id: 4, text: "Hej, allt bra med dig?", username: "Anna", userId: 2 },
+    // { id: 5, text: "Ja, det är bara bra! Hur är det själv?", username: "Anna", userId: 2 },
+    { id: 6, text: "Vad har du för planer för helgen?", username: "Erik", userId: 1 },
+    { id: 7, text: "Jag tänkte kanske gå på bio.", username: "Erik", userId: 1 },
   ]);
 
   const [newMessage, setNewMessage] = useState('');
@@ -32,13 +32,8 @@ const Chat = () => {
         if (response.ok) {
           const data = await response.json();
           if (data.length > 0) {
-            const messagesWithUserInfo = data.map(msg => ({
-              ...msg,
-              userId: msg.userId || loggedInUser.id,
-              username: msg.username || loggedInUser.username,
-            }));
-            setMessages(messagesWithUserInfo);
-            console.log("Fetched messages:", messagesWithUserInfo);
+            setMessages(messages.concat(data));
+            console.log("Fetched messages:", messages);
           }
         } else {
           setError("Failed to fetch messages.");
@@ -57,7 +52,7 @@ const Chat = () => {
     if (!newMessage.trim()) return;
 
     const sanitizedMessage = DOMPurify.sanitize(newMessage);
-    const conversationId = "550e8400-e29b-41d4-a716-446655440000"; 
+    const conversationId = "550e8400-e29b-41d4-a716-446655440000";
 
     const messagePayload = {
       text: sanitizedMessage,
@@ -134,10 +129,10 @@ const Chat = () => {
   return (
     <div className="chat-container">
       <div className="user-info">
-        <img 
-          src={loggedInUser.avatar || 'https://api.multiavatar.com/seed3.svg'} 
-          alt="User Avatar" 
-          className="user-avatar" 
+        <img
+          src={loggedInUser.avatar || 'https://api.multiavatar.com/seed3.svg'}
+          alt="User Avatar"
+          className="user-avatar"
         />
         <h3>{loggedInUser.username || 'Guest'}</h3>
       </div>
@@ -151,7 +146,7 @@ const Chat = () => {
             <div className="message-info">
               <span className="username">{message.username}</span>
             </div>
-            <p className="message-content">{message.content}</p>
+            <p className="message-content">{message.text}</p>
             {message.userId === loggedInUser.id && (
               <button className="delete-btn" onClick={() => handleDeleteMessage(message.id)}>
                 Delete
