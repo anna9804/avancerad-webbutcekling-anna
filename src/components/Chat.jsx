@@ -7,61 +7,13 @@ const Chat = () => {
   console.log("Logged In User:", loggedInUser);
 
   const [messages, setMessages] = useState([
-    {
-      id: 1,
-      content: "Tja tja, hur mår du?",
-      username: "Erik",
-      userId: 1,
-    },
-    {
-      id: 2,
-      content: "Hallå!! Svara då!!",
-      username: "Anna",
-      userId: 2,
-    },
-    {
-      id: 3,
-      content: "Sover du eller?!",
-      username: "Erik",
-      userId: 1,
-    },
-    {
-      id: 4,
-      content: "Hej, allt bra med dig?",
-      username: "Anna",
-      userId: 2,
-    },
-    {
-      id: 5,
-      content: "Ja, det är bara bra! Hur är det själv?",
-      username: "Anna",
-      userId: 2,
-    },
-    {
-      id: 6,
-      content: "Vad har du för planer för helgen?",
-      username: "Erik",
-      userId: 1,
-    },
-    {
-      id: 7,
-      content: "Jag tänkte kanske gå på bio.",
-      username: "Erik",
-      userId: 1,
-    },
-    
-    {
-      id: 8,
-      content: "Fake message 1",
-      username: "FakeUser1",
-      userId: 3,
-    },
-    {
-      id: 9,
-      content: "Fake message 2",
-      username: "FakeUser2",
-      userId: 4,
-    },
+    { id: 1, content: "Tja tja, hur mår du?", username: "Erik", userId: 1 },
+    { id: 2, content: "Hallå!! Svara då!!", username: "Anna", userId: 2 },
+    { id: 3, content: "Sover du eller?!", username: "Erik", userId: 1 },
+    { id: 4, content: "Hej, allt bra med dig?", username: "Anna", userId: 2 },
+    { id: 5, content: "Ja, det är bara bra! Hur är det själv?", username: "Anna", userId: 2 },
+    { id: 6, content: "Vad har du för planer för helgen?", username: "Erik", userId: 1 },
+    { id: 7, content: "Jag tänkte kanske gå på bio.", username: "Erik", userId: 1 },
   ]);
 
   const [newMessage, setNewMessage] = useState('');
@@ -70,7 +22,7 @@ const Chat = () => {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const response = await fetch("https://chatify-api.up.railway.app/messages", {
+        const response = await fetch("https://chatify-api.up.railway.app/messages?", {
           method: "GET",
           headers: {
             "Authorization": `Bearer ${loggedInUser.token}`,
@@ -105,11 +57,11 @@ const Chat = () => {
     if (!newMessage.trim()) return;
 
     const sanitizedMessage = DOMPurify.sanitize(newMessage);
-    
+    const conversationId = "550e8400-e29b-41d4-a716-446655440000"; 
+
     const messagePayload = {
-      content: sanitizedMessage,
-      userId: loggedInUser.id,
-      username: loggedInUser.username,
+      text: sanitizedMessage,
+      conversationId: conversationId,
     };
 
     try {
@@ -124,7 +76,13 @@ const Chat = () => {
 
       if (response.ok) {
         const newMessageData = await response.json();
-        setMessages((prevMessages) => [...prevMessages, newMessageData]);
+        const newMessage = {
+          id: newMessageData.latestMessage.id,
+          content: newMessageData.latestMessage.text,
+          userId: loggedInUser.id,
+          username: loggedInUser.username,
+        };
+        setMessages((prevMessages) => [...prevMessages, newMessage]);
         setNewMessage('');
       } else {
         const errorDetails = await response.text();
