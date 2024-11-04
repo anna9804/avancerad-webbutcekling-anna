@@ -14,7 +14,7 @@ const avatarOptions = [
 const Login = ({ setUser }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [email, setEmail] = useState("");
+  const [selectedAvatar, setSelectedAvatar] = useState(avatarOptions[0]);
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
@@ -24,57 +24,71 @@ const Login = ({ setUser }) => {
       setUser(JSON.parse(storedUser));
       navigate("/chat");
     }
-  }, [navigate, setUser]);
+  }, [setUser, navigate]);
+
+  const decodeJWT = (token) => {
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      return payload;
+    } catch (e) {
+      console.error("Failed to decode JWT:", e);
+      return null;
+    }
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setError("");
+    const csrfToken = localStorage.getItem("csrfToken");
+
+    if (!csrfToken) {
+      setError("CSRF token is missing. Please try again.");
+      return;
+    }
 
     try {
-      const response = await fetch("https://chatify-api.up.railway.app/token", {
+      const response = await fetch("https://chatify-api.up.railway.app/auth/token", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "CSRF-Token": csrfToken,
         },
         body: JSON.stringify({ username, password }),
       });
-  
+
       if (response.ok) {
         const userData = await response.json();
-        localStorage.setItem('user', JSON.stringify({
-          id: userData.id,
-          username: userData.username,
-          token: userData.token,
-          avatar: userData.avatar || 'https://api.multiavatar.com/seed3.svg',
-        }));
-  
-        console.log("User logged in and data saved to localStorage:", userData);
-        setUser(userData);
-        navigate("/chat");
+        const decodedJWT = decodeJWT(userData.token);
+
+        if (decodedJWT) {
+          const user = {
+            id: decodedJWT.id,
+            username: decodedJWT.user,
+            avatar: selectedAvatar,
+            token: userData.token,
+          };
+
+          setUser(user);
+          localStorage.setItem("user", JSON.stringify(user));
+
+          navigate("/chat");
+        } else {
+          setError("Failed to decode token.");
+        }
       } else {
-        const errorDetails = await response.text();
-        setError(errorDetails || "Login failed."); 
-        console.error("Login Error:", errorDetails);
+        const errorData = await response.json();
+        setError(errorData.message || "Login failed. Please check your credentials.");
       }
     } catch (err) {
-      setError("Error during login. Please try again.");
-      console.error("Error during login:", err);
+      console.error("Login error:", err);
+      setError("Something went wrong. Please try again.");
     }
-  };   
+  };
 
   return (
     <div className="login-container">
-      <h2>Logga in</h2>
+      <h2>Log in</h2>
       <form className="login-form" onSubmit={handleLogin}>
-        <div className="form-group">
-          <label>Email</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            placeholder="Enter your email"
-          />
-        </div>
         <div className="form-group">
           <label>Username</label>
           <input
@@ -95,7 +109,23 @@ const Login = ({ setUser }) => {
             placeholder="Enter your password"
           />
         </div>
-        <button type="submit" className="login-btn">Logga in</button>
+        
+        <div className="avatar-selection">
+          <label>Select Avatar</label>
+          <div className="avatar-options">
+            {avatarOptions.map((avatar) => (
+              <img
+                key={avatar}
+                src={avatar}
+                alt="Avatar option"
+                className={`avatar-option ${selectedAvatar === avatar ? 'selected' : ''}`}
+                onClick={() => setSelectedAvatar(avatar)}
+              />
+            ))}
+          </div>
+        </div>
+
+        <button type="submit" className="login-btn">Log in</button>
       </form>
       {error && <p className="error-message">{error}</p>}
     </div>
